@@ -146,7 +146,7 @@ if __name__ == "__main__":
                 write_to_db(account, cpost)
             except sqlite3.IntegrityError:
                 logging.info("Nothing to add")
-                sys.exit(0)
+                continue
             except Exception as e:
                 logging.error(traceback.format_exc())
                 logging.info("\n\n")
