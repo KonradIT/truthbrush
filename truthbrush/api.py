@@ -250,7 +250,7 @@ class Api:
             )
             sess_req.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            logger.error(f"Failed login request: {str(e)}")
+            logger.error(f"Failed login request: {str(e.response.status_code)}")
             return None
 
         if not sess_req.json()["access_token"]:

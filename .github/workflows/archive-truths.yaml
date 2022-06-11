@@ -2,13 +2,10 @@ name: archivetruths
 on:
   schedule:
     - cron: "30 0 * * *"
-  push:
-    branches:
-      - main
 env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 jobs:
-  build:
+  archivetruths:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo content
