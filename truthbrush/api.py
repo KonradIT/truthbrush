@@ -11,7 +11,7 @@ import json
 import logging
 import os
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 BASE_URL = "https://truthsocial.com"

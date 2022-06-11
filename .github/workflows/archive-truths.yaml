@@ -1,0 +1,31 @@
+name: archivetruths
+on:
+  schedule:
+    - cron: "30 0 * * *"
+  push:
+    branches:
+      - main
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo content
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2.0.0
+        with:
+          python-version: "3.8"
+      - name: Install requirements
+        run: pip install requests loguru python-dotenv python-dateutil dataclasses_json
+      - name: Run script
+        env:
+          TRUTHSOCIAL_USERNAME: ${{ secrets.TRUTHSOCIAL_USERNAME }}
+          TRUTHSOCIAL_PASSWORD: ${{ secrets.TRUTHSOCIAL_PASSWORD }}
+        run: python scripts/archive-truths.py
+      - uses: EndBug/add-and-commit@v7
+        with:
+          author_name: GitHub Action
+          author_email: action@github.com
+          message: "New Truth Social posts"
