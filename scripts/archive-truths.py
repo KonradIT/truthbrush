@@ -10,9 +10,10 @@ import utils as u
 from tables import posts_table, posts_table_values, reblogs_table, reblogs_table_values, media_attachment_table, media_attachment_table_values
 from typing import Optional
 from schemas import Post
+from datetime import datetime as dt
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
-from truthbrush.api import Api
+sys.path.insert(1, os.path.join(sys.path[0], ".."))  # nopep8
+from truthbrush.api import Api  # nopep8
 
 
 def write_to_db(account: str, post: Post) -> Optional[Exception]:
@@ -122,18 +123,21 @@ if __name__ == "__main__":
     api = Api(os.getenv("TRUTHSOCIAL_USERNAME"),
               os.getenv("TRUTHSOCIAL_PASSWORD"))
 
-    logging.info("Getting posts from Truth Social")
+    logging.info(":: getting posts from Truth Social")
 
     with open(os.path.join("scripts", "accounts.json"), "r") as accounts_file:
         accounts = json.loads(accounts_file.read())
 
     for account in accounts:
-        logging.info("Looking at %s" % account)
+        logging.info(":: looking at %s" % account)
 
+        t1 = dt.now()
         _, date_yesterday = u.get_day(days_back=1)
         posts = api.pull_statuses(username=account,
                                   created_after=date_yesterday,
                                   replies=True)
+        t2 = dt.now()
+        logging.info(":: got %d posts - it took ~%d seconds to query the posts for 1 day back" % (len(posts), (t2 - t1).total_seconds()))
         for post in posts:
             try:
                 cpost = Post.from_dict(post)
