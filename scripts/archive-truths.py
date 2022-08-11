@@ -128,11 +128,11 @@ if __name__ == "__main__":
     with open(os.path.join("scripts", "accounts.json"), "r") as accounts_file:
         accounts = json.loads(accounts_file.read())
 
-    for account in accounts:
+    for account in ["rickywshifferjr"]:
         logging.info(":: looking at %s" % account)
 
         t1 = dt.now()
-        _, date_yesterday = u.get_day(days_back=1)
+        _, date_yesterday = u.get_day(days_back=30)
         posts = api.pull_statuses(username=account,
                                   created_after=date_yesterday,
                                   replies=True)
