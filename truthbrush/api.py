@@ -1,6 +1,6 @@
 from email.generator import Generator
 from time import sleep
-from typing import Any, Iterator, List
+from typing import Any, Iterator, List, Optional
 from loguru import logger
 from requests.sessions import HTTPAdapter
 from dateutil import parser as date_parse
@@ -13,7 +13,6 @@ import os
 
 logging.basicConfig(level=logging.INFO)
 
-
 BASE_URL = "https://truthsocial.com"
 API_BASE_URL = "https://truthsocial.com/api"
 USER_AGENT = "TruthSocial/71 CFNetwork/1331.0.7 Darwin/21.4.0"
@@ -25,15 +24,20 @@ CLIENT_SECRET = "ozF8jzI4968oTKFkEnsBC-UbLPCdrSv0MkXGQu2o_-M"
 proxies = {"http": os.getenv("http_proxy"), "https": os.getenv("https_proxy")}
 
 
+class LoginErrorException(Exception):
+    pass
+
+
 class Api:
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
+    def __init__(self, username: str = None, password: str = None):
         self.ratelimit_max = 300
         self.ratelimit_remaining = None
         self.ratelimit_reset = None
-        if username and password:
-            self.auth_id = self.get_auth_id(username, password)
+        if username == None:
+            raise LoginErrorException("Username is missing.")
+        if password == None:
+            raise LoginErrorException("Password is missing.")
+        self.auth_id = self.get_auth_id(username, password)
 
     def _make_session(self):
         s = requests.Session()
@@ -107,11 +111,31 @@ class Api:
             # Will also sleep
             self._check_ratelimit(resp)
 
-    def lookup(self, user_handle: str = None) -> dict:
+    def lookup(self, user_handle: str = None) -> Optional[dict]:
         """Lookup a user's information."""
 
         assert user_handle is not None
         return self._get("/v1/accounts/lookup", params=dict(acct=user_handle))
+
+    def search(
+        self,
+        searchtype: str = None,
+        query: str = None,
+        limit: int = 4,
+        resolve: bool = 4,
+    ) -> Optional[dict]:
+        """Search users, statuses or hashtags."""
+
+        assert query is not None and searchtype is not None
+        return self._get(
+            "/v2/search",
+            params=dict(
+                q=query,
+                resolve=resolve,
+                limit=limit,
+                type=searchtype,
+            ),
+        )
 
     def trending(self):
         """Return trending truths."""
