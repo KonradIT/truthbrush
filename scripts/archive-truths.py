@@ -128,7 +128,7 @@ if __name__ == "__main__":
     with open(os.path.join("scripts", "accounts.json"), "r") as accounts_file:
         accounts = json.loads(accounts_file.read())
 
-    for account in ["rickywshifferjr"]:
+    for account in accounts:
         logging.info(":: looking at %s" % account)
 
         t1 = dt.now()
@@ -137,7 +137,7 @@ if __name__ == "__main__":
                                   created_after=date_yesterday,
                                   replies=True)
         t2 = dt.now()
-        logging.info(":: got %d posts - it took ~%d seconds to query the posts for 1 day back" % (len(posts), (t2 - t1).total_seconds()))
+        logging.info(":: got %d posts - it took ~%d seconds to query the posts for 30 days back" % (len(posts), (t2 - t1).total_seconds()))
         for post in posts:
             try:
                 cpost = Post.from_dict(post)
@@ -149,6 +149,8 @@ if __name__ == "__main__":
             try:
                 write_to_db(account, cpost)
             except sqlite3.IntegrityError:
+                logging.error(traceback.format_exc())
+                logging.info("\n\n")
                 logging.info("Nothing to add")
                 continue
             except Exception as e:
