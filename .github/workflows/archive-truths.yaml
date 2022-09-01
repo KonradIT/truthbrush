@@ -1,6 +1,8 @@
 name: archivetruths
-on: workflow_dispatch
-    
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron: "30 0 * * *"
 env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 jobs:
