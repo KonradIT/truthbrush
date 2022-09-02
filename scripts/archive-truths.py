@@ -132,7 +132,7 @@ if __name__ == "__main__":
         logging.info(":: looking at %s" % account)
 
         t1 = dt.now()
-        _, date_yesterday = u.get_day(days_back=30)
+        _, date_yesterday = u.get_day(days_back=1)
         posts = api.pull_statuses(username=account,
                                   created_after=date_yesterday,
                                   replies=True)
