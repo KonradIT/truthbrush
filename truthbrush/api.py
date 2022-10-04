@@ -200,6 +200,11 @@ class Api:
         self.__check_login()
         return self._get(f"/v2/suggestions?limit={maximum}")
 
+    def ads(self, device: str = "desktop") -> dict:
+        """Return a list of ads from Rumble's Ad Platform via Truth Social API."""
+
+        return self._get(f"/v1/truth/ads?device={device}")
+
     def user_followers(
         self,
         user_handle: str = None,

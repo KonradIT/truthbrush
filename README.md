@@ -14,6 +14,7 @@ Commands:
   suggestions  Pull the list of suggested users.
   tags         Pull trendy tags.
   trends       Pull trendy Truths.
+  ads          Pull ads.
   user         Pull a user's metadata.
 ```
 
