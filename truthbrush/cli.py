@@ -65,6 +65,12 @@ def suggestions():
 
 
 @cli.command()
+def ads():
+    """Pull ads."""
+
+    print(json.dumps(api.ads()))
+
+@cli.command()
 @click.argument("handle")
 @click.option("--maximum", help="the maximum number of followers to pull", type=int)
 @click.option(
