@@ -4,7 +4,6 @@ import json
 import os
 import click
 from datetime import date
-import pkg_resources
 from dotenv import load_dotenv
 
 from .api import Api
@@ -47,12 +46,15 @@ def user(handle: str):
     help="Type of search query (accounts, statuses, or hashtags)",
     type=click.Choice(["accounts", "statuses", "hashtags"]),
 )
-@click.option("--limit", help="Limit the number of items returned", type=int)
+@click.option(
+    "--limit", default=40, help="Limit the number of items returned", type=int
+)
 @click.option("--resolve", help="Resolve", type=bool)
 def search(searchtype: str, query: str, limit: int, resolve: bool):
     """Search for users, statuses or hashtags."""
 
-    print(json.dumps(api.search(searchtype, query, limit, resolve)))
+    for page in api.search(searchtype, query, limit, resolve):
+        print(json.dumps(page[searchtype]))
 
 
 @cli.command()
@@ -109,4 +111,5 @@ def following(handle: str, maximum: int = None, resume: str = None):
 )
 def statuses(username: str, replies: bool = False, created_after: date = None):
     """Pull a user's statuses"""
-    print(json.dumps(api.pull_statuses(username, created_after, replies)))
+    for page in api.pull_statuses(username, created_after, replies):
+        print(json.dumps(page))

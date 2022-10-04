@@ -1,4 +1,3 @@
-from email.generator import Generator
 from time import sleep
 from typing import Any, Iterator, List, Optional
 from loguru import logger
@@ -11,7 +10,13 @@ import json
 import logging
 import os
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=(
+        logging.DEBUG
+        if os.getenv("DEBUG") and os.getenv("DEBUG").lower() != "false"
+        else logging.INFO
+    )
+)
 
 BASE_URL = "https://truthsocial.com"
 API_BASE_URL = "https://truthsocial.com/api"
@@ -33,11 +38,18 @@ class Api:
         self.ratelimit_max = 300
         self.ratelimit_remaining = None
         self.ratelimit_reset = None
-        if username == None:
+        self.__username = username
+        self.__password = password
+        self.auth_id = ""
+
+    def __check_login(self):
+        """Runs before any login-walled function to check for login credentials and generates an auth ID token"""
+        if self.__username is None:
             raise LoginErrorException("Username is missing.")
-        if password == None:
+        if self.__password is None:
             raise LoginErrorException("Password is missing.")
-        self.auth_id = self.get_auth_id(username, password)
+        if self.auth_id == "":
+            self.auth_id = self.get_auth_id(self.__username, self.__password)
 
     def _make_session(self):
         s = requests.Session()
@@ -114,6 +126,7 @@ class Api:
     def lookup(self, user_handle: str = None) -> Optional[dict]:
         """Lookup a user's information."""
 
+        self.__check_login()
         assert user_handle is not None
         return self._get("/v1/accounts/lookup", params=dict(acct=user_handle))
 
@@ -121,35 +134,70 @@ class Api:
         self,
         searchtype: str = None,
         query: str = None,
-        limit: int = 4,
+        limit: int = 40,
         resolve: bool = 4,
+        offset: int = 0,
+        min_id: str = "0",
+        max_id: str = None,
     ) -> Optional[dict]:
         """Search users, statuses or hashtags."""
 
+        self.__check_login()
         assert query is not None and searchtype is not None
-        return self._get(
-            "/v2/search",
-            params=dict(
-                q=query,
-                resolve=resolve,
-                limit=limit,
-                type=searchtype,
-            ),
-        )
+
+        page = 0
+        while page < limit:
+
+            if max_id is None:
+                resp = self._get(
+                    "/v2/search",
+                    params=dict(
+                        q=query,
+                        resolve=resolve,
+                        limit=limit,
+                        type=searchtype,
+                        offset=offset,
+                        min_id=min_id,
+                    ),
+                )
+
+            else:
+
+                resp = self._get(
+                    "/v2/search",
+                    params=dict(
+                        q=query,
+                        resolve=resolve,
+                        limit=limit,
+                        type=searchtype,
+                        offset=offset,
+                        min_id=min_id,
+                        max_id=max_id,
+                    ),
+                )
+
+            offset += 40
+            if not resp[searchtype]:
+                break
+
+            yield resp
 
     def trending(self):
         """Return trending truths."""
 
+        self.__check_login()
         return self._get("/v1/truth/trending/truths")
 
     def tags(self):
         """Return trending tags."""
 
+        self.__check_login()
         return self._get("/v1/trends")
 
     def suggested(self, maximum: int = 50) -> dict:
         """Return a list of suggested users to follow."""
 
+        self.__check_login()
         return self._get(f"/v2/suggestions?limit={maximum}")
 
     def user_followers(
@@ -159,6 +207,7 @@ class Api:
         maximum: int = 1000,
         resume: str = None,
     ) -> Iterator[dict]:
+
         assert user_handle is not None or user_id is not None
         user_id = user_id if user_id is not None else self.lookup(user_handle)["id"]
 
@@ -179,6 +228,7 @@ class Api:
         maximum: int = 1000,
         resume: str = None,
     ) -> Iterator[dict]:
+
         assert user_handle is not None or user_id is not None
         user_id = user_id if user_id is not None else self.lookup(user_handle)["id"]
 
@@ -198,7 +248,6 @@ class Api:
         """Pull the given user's statuses. Returns an empty list if not found."""
 
         params = {}
-        all_posts = []
         id = self.lookup(username)["id"]
         while True:
             try:
@@ -247,9 +296,7 @@ class Api:
                 if created_after and date_created < created_after:
                     continue
 
-                all_posts.append(post)
-
-        return all_posts
+                yield post
 
     def get_auth_id(self, username: str, password: str) -> str:
         """Logs in to Truth account and returns the session token"""
