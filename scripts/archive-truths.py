@@ -145,7 +145,9 @@ if __name__ == "__main__":
                 logging.error(traceback.format_exc())
                 logging.info("\n\n")
                 logging.info(post)
+                notifier.push("Error in TS Post Archiver", traceback.format_exc())
                 sys.exit(-1)
+
             try:
                 write_to_db(account, cpost)
             except sqlite3.IntegrityError:
@@ -158,5 +160,7 @@ if __name__ == "__main__":
                 logging.info(post)
                 notifier.push("Error in TS Post Archiver", traceback.format_exc())
                 sys.exit(-1)
+            finally:
+                posts_archived_this_run += 1
         t2 = dt.now()
         logging.info(":: got %d posts - it took ~%d seconds to query the posts for 10 days back" % (posts_archived_this_run, (t2 - t1).total_seconds()))
