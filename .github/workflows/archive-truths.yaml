@@ -21,6 +21,7 @@ jobs:
         env:
           TRUTHSOCIAL_USERNAME: ${{ secrets.TRUTHSOCIAL_USERNAME }}
           TRUTHSOCIAL_PASSWORD: ${{ secrets.TRUTHSOCIAL_PASSWORD }}
+          PUSHBULLET_API_KEY: ${{ secrets.PUSHBULLET_API_KEY }}
         run: python scripts/archive-truths.py
       - name: Run ads script
         run: python scripts/archive-ads.py
