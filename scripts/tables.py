@@ -67,3 +67,5 @@ media_attachment_table = """CREATE TABLE IF NOT EXISTS media_attachments (id tex
 
 media_attachment_table_values = (
     "?," * (media_attachment_table.count("\n") - 2))[:-1]
+
+ads_table = """CREATE TABLE IF NOT EXISTS ads (id text PRIMARY KEY, image text)"""

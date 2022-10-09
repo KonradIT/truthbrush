@@ -22,6 +22,8 @@ jobs:
           TRUTHSOCIAL_USERNAME: ${{ secrets.TRUTHSOCIAL_USERNAME }}
           TRUTHSOCIAL_PASSWORD: ${{ secrets.TRUTHSOCIAL_PASSWORD }}
         run: python scripts/archive-truths.py
+      - name: Run ads script
+        run: python scripts/archive-ads.py
       - uses: EndBug/add-and-commit@v7
         with:
           author_name: GitHub Action
