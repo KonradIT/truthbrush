@@ -1,5 +1,6 @@
 # wrote this script with the side effects of a corona vaccine AND sleep deprived.
 
+from notifier import Notifier
 import traceback
 import json
 import sqlite3
@@ -127,17 +128,16 @@ if __name__ == "__main__":
 
     with open(os.path.join("scripts", "accounts.json"), "r") as accounts_file:
         accounts = json.loads(accounts_file.read())
-
+    notifier = Notifier()
     for account in accounts:
         logging.info(":: looking at %s" % account)
 
         t1 = dt.now()
-        _, date_yesterday = u.get_day(days_back=1)
+        _, date_yesterday = u.get_day(days_back=10)
         posts = api.pull_statuses(username=account,
                                   created_after=date_yesterday,
                                   replies=True)
-        t2 = dt.now()
-        logging.info(":: got %d posts - it took ~%d seconds to query the posts for 30 days back" % (len(posts), (t2 - t1).total_seconds()))
+        posts_archived_this_run = 0
         for post in posts:
             try:
                 cpost = Post.from_dict(post)
@@ -150,11 +150,13 @@ if __name__ == "__main__":
                 write_to_db(account, cpost)
             except sqlite3.IntegrityError:
                 logging.error(traceback.format_exc())
-                logging.info("\n\n")
                 logging.info("Nothing to add")
                 continue
             except Exception as e:
                 logging.error(traceback.format_exc())
                 logging.info("\n\n")
                 logging.info(post)
+                notifier.push("Error in TS Post Archiver", traceback.format_exc())
                 sys.exit(-1)
+        t2 = dt.now()
+        logging.info(":: got %d posts - it took ~%d seconds to query the posts for 10 days back" % (posts_archived_this_run, (t2 - t1).total_seconds()))
