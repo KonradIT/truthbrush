@@ -24,6 +24,8 @@ jobs:
           PUSHBULLET_API_KEY: ${{ secrets.PUSHBULLET_API_KEY }}
         run: python scripts/archive-truths.py
       - name: Run ads script
+        env:
+          PUSHBULLET_API_KEY: ${{ secrets.PUSHBULLET_API_KEY }}
         run: python scripts/archive-ads.py
       - uses: EndBug/add-and-commit@v7
         with:
