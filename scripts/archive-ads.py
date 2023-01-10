@@ -5,7 +5,7 @@ import sqlite3
 import os
 import logging
 import utils as u
-from tables import ads_table
+from tables import ads_table, ads_migrations
 from notifier import Notifier
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))  # nopep8
@@ -21,17 +21,37 @@ if __name__ == "__main__":
 		r = requests.get(uri, allow_redirects=False)
 		assert r.status_code == 302
 		return r.headers["Location"]
-	ads = api.ads().get("ads")
+	ads = api.ads()
 	connection = sqlite3.connect("output/ads.db")
 	notifier = Notifier()
 	for ad in ads:
-		print("%s - %s" % (resolve(ad.get("click")), ad.get("asset")))
 		cursor = connection.cursor()
 		cursor.execute(ads_table)
+		for mig in ads_migrations:
+			try:
+				cursor.execute(mig)
+			except:
+				pass
 		try:
-			cursor.execute("INSERT INTO ads VALUES(?,?)", (
-				resolve(ad.get("click")),
-				ad.get("asset"),
+
+			adtype = "ad"
+			payload = ad.get("ad")
+			username = ""
+			if ad.get("status") != None:
+				adtype = "status"
+				payload = ad.get("status")
+				username = payload.get("account").get("username")
+			url = payload.get("card").get("url")
+			try:
+				url = resolve(payload.get("card").get("url"))
+			except: pass
+			print("%s - %s" % (url, payload.get("card").get("image")))
+			cursor.execute("INSERT INTO ads VALUES(?,?,?,?,?)", (
+				url,
+				payload.get("card").get("image"),
+				adtype == "status",
+				payload.get("card").get("title"),
+				username
 			))
 		except sqlite3.IntegrityError:
 			logging.error(traceback.format_exc())
@@ -40,9 +60,9 @@ if __name__ == "__main__":
 		except Exception as e:
 			logging.error(traceback.format_exc())
 			logging.info("\n\n")
-			logging.info(resolve(ad.get("click")))
+			logging.info(ad)
 			notifier.push("Error in TS Ads Archiver", traceback.format_exc())
 			sys.exit(-1)
-	
+
 	connection.commit()
 	connection.close()
