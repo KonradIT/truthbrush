@@ -37,21 +37,32 @@ if __name__ == "__main__":
 			adtype = "ad"
 			payload = ad.get("ad")
 			username = ""
+			faves = 0
+			retruths = 0
+			replies = 0
 			if ad.get("status") != None:
-				adtype = "status"
-				payload = ad.get("status")
-				username = payload.get("account").get("username")
+				try:
+					adtype = "status"
+					payload = ad.get("status")
+					username = payload.get("account").get("username")
+					replies = payload.get("replies_count")
+					faves = payload.get("favourites_count")
+					reblogs = payload.get("reblogs_count")
+				except: pass
 			url = payload.get("card").get("url")
 			try:
 				url = resolve(payload.get("card").get("url"))
 			except: pass
 			print("%s - %s" % (url, payload.get("card").get("image")))
-			cursor.execute("INSERT INTO ads VALUES(?,?,?,?,?)", (
+			cursor.execute("INSERT INTO ads VALUES(?,?,?,?,?,?,?,?)", (
 				url,
 				payload.get("card").get("image"),
 				adtype == "status",
 				payload.get("card").get("title"),
-				username
+				username,
+				faves,
+				retruths,
+				replies,
 			))
 		except sqlite3.IntegrityError:
 			logging.error(traceback.format_exc())

@@ -71,4 +71,7 @@ media_attachment_table_values = (
 ads_table = """CREATE TABLE IF NOT EXISTS ads (id text PRIMARY KEY, image text)"""
 ads_migrations = ["ALTER TABLE ads ADD COLUMN is_status BOOL DEFAULT false",
 "ALTER TABLE ads ADD COLUMN title TEXT",
-"ALTER TABLE ads ADD COLUMN status_username TEXT"]
+"ALTER TABLE ads ADD COLUMN status_username TEXT",
+"ALTER TABLE ads ADD COLUMN status_favourites_count integer",
+"ALTER TABLE ads ADD COLUMN status_reblogs_count integer",
+"ALTER TABLE ads ADD COLUMN status_replies_count integer"]
