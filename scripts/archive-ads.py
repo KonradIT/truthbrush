@@ -47,6 +47,8 @@ if __name__ == "__main__":
 					reblogs = payload.get("reblogs_count")
 				except: pass
 			url = urlexpander.expand(payload.get("card").get("url"))
+			if "CLIENT_ERROR" in url:
+				url = payload.get("card").get("url")
 			print("%s - %s" % (url, payload.get("card").get("image")))
 			cursor.execute("INSERT INTO ads VALUES(?,?,?,?,?,?,?,?)", (
 				url,
