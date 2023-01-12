@@ -46,10 +46,7 @@ if __name__ == "__main__":
 					faves = payload.get("favourites_count")
 					reblogs = payload.get("reblogs_count")
 				except: pass
-			url = payload.get("card").get("url")
-			try:
-				url = urlexpander.expand(payload.get("card").get("url"))
-			except: pass
+			url = urlexpander.expand(payload.get("card").get("url"))
 			print("%s - %s" % (url, payload.get("card").get("image")))
 			cursor.execute("INSERT INTO ads VALUES(?,?,?,?,?,?,?,?)", (
 				url,
