@@ -7,6 +7,7 @@ import logging
 import utils as u
 from tables import ads_table, ads_migrations
 from notifier import Notifier
+import urlexpander
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))  # nopep8
 from truthbrush.api import Api  # nopep8
@@ -17,10 +18,6 @@ if __name__ == "__main__":
 
 	logging.info(":: getting ads from Truth Social")
 
-	def resolve(uri) -> str:
-		r = requests.get(uri, allow_redirects=False)
-		assert r.status_code == 302
-		return r.headers["Location"]
 	ads = api.ads()
 	connection = sqlite3.connect("output/ads.db")
 	notifier = Notifier()
@@ -51,7 +48,7 @@ if __name__ == "__main__":
 				except: pass
 			url = payload.get("card").get("url")
 			try:
-				url = resolve(payload.get("card").get("url"))
+				url = urlexpander.expand(payload.get("card").get("url"))
 			except: pass
 			print("%s - %s" % (url, payload.get("card").get("image")))
 			cursor.execute("INSERT INTO ads VALUES(?,?,?,?,?,?,?,?)", (
