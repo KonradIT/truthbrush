@@ -44,7 +44,7 @@ if __name__ == "__main__":
 					username = payload.get("account").get("username")
 					replies = payload.get("replies_count")
 					faves = payload.get("favourites_count")
-					reblogs = payload.get("reblogs_count")
+					retruths = payload.get("reblogs_count")
 				except: pass
 			url = urlexpander.expand(payload.get("card").get("url"))
 			if "CLIENT_ERROR" in url:
