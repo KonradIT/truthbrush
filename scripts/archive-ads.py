@@ -46,7 +46,10 @@ if __name__ == "__main__":
 					faves = payload.get("favourites_count")
 					retruths = payload.get("reblogs_count")
 				except: pass
-			url = urlexpander.expand(payload.get("card").get("url"))
+			unexurl = payload.get("card").get("url")
+			if "smeagol.revcontent.com/v3/" in unexurl:
+				unexurl = unexurl.replace("smeagol.revcontent.com/v3/", "smeagol.revcontent.com/cv/v3/")
+			url = urlexpander.expand(unexurl)
 			if "CLIENT_ERROR" in url:
 				url = payload.get("card").get("url")
 			print("%s - %s" % (url, payload.get("card").get("image")))
