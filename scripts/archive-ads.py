@@ -49,12 +49,11 @@ if __name__ == "__main__":
 			unexurl = payload.get("card").get("url")
 			if "smeagol.revcontent.com/v3/" in unexurl:
 				unexurl = unexurl.replace("smeagol.revcontent.com/v3/", "smeagol.revcontent.com/cv/v3/")
-				r = requests.get(unexurl)
-				r.raise_for_status()
-				unexurl = r.url
+			r = requests.get(unexurl)
+			unexurl = r.url
 			url = urlexpander.expand(unexurl)
 			if "CLIENT_ERROR" in url:
-				url = payload.get("card").get("url")
+				url = r.url
 			print("%s - %s" % (url, payload.get("card").get("image")))
 			cursor.execute("INSERT INTO ads VALUES(?,?,?,?,?,?,?,?)", (
 				url,
