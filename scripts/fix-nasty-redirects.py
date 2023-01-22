@@ -28,7 +28,7 @@ if __name__ == "__main__":
 	connection = sqlite3.connect("output/ads.db")
 
 	cursor = connection.cursor()
-	cursor.execute("SELECT id FROM ads WHERE id LIKE '%smeagol.revcontent.com/v3%'")
+	cursor.execute("SELECT id FROM ads")
 
 	rows = cursor.fetchall()
 
@@ -36,11 +36,14 @@ if __name__ == "__main__":
 
 		cursor = connection.cursor()
 		logging.info(row[0])
-		fixedURL = row[0].replace("smeagol.revcontent.com/v3/", "smeagol.revcontent.com/cv/v3/")
-		r = s.get(fixedURL)
-		r.raise_for_status()
-		logging.info("New URL: "+ str(r.url))
-
+		try:
+			fixedURL = row[0].replace("smeagol.revcontent.com/v3/", "smeagol.revcontent.com/cv/v3/")
+			r = s.get(fixedURL)
+			if  str(r.url) == row[0]:
+	   			continue
+			logging.info("New URL: "+ str(r.url))
+		except:
+	  		continue
 		try:
 			update(cursor, row[0], r.url)
 		except sqlite3.IntegrityError:
