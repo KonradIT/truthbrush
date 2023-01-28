@@ -19,6 +19,7 @@ if __name__ == "__main__":
 	logging.info(":: getting ads from Truth Social")
 
 	ads = api.ads()
+	ads += api.ads(device="mobile") # guess
 	connection = sqlite3.connect("output/ads.db")
 	notifier = Notifier()
 	for ad in ads:
