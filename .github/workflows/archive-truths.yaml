@@ -17,12 +17,6 @@ jobs:
           python-version: "3.8"
       - name: Install requirements
         run: pip install requests loguru python-dotenv python-dateutil dataclasses_json urlexpander "pushbullet.py"
-      - name: Run script
-        env:
-          TRUTHSOCIAL_USERNAME: ${{ secrets.TRUTHSOCIAL_USERNAME }}
-          TRUTHSOCIAL_PASSWORD: ${{ secrets.TRUTHSOCIAL_PASSWORD }}
-          PUSHBULLET_API_KEY: ${{ secrets.PUSHBULLET_API_KEY }}
-        run: python scripts/archive-truths.py
       - name: Run ads script
         env:
           PUSHBULLET_API_KEY: ${{ secrets.PUSHBULLET_API_KEY }}
